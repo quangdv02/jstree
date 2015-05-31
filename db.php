@@ -92,12 +92,14 @@ function create_list($list, $parent_id = 0){
 }
 
 function delete_node($id){
-    delCatByid($id);
-    $data = getCatByPid($id);
-    $count  = count($data);
-    if($count){
-        foreach ($data as $val) {
-            delete_node($val['id']);
+    if($id!=1){
+        delCatByid($id);
+        $data = getCatByPid($id);
+        $count  = count($data);
+        if($count){
+            foreach ($data as $val) {
+                delete_node($val['id']);
+            }
         }
     }
 }
@@ -110,4 +112,15 @@ function getCatByPid($id){
 function delCatByid($id){
     $sql="delete from categories where id=$id";
     exec_update($sql);
+
+}
+
+function beforeDelNode($id){
+    $sql1= "select * from categories where id = $id";
+    $data = fetchOne($sql1);
+    $pid = $data['pid'];
+    $node = $data['id'];
+    $pos = $data['pos'];
+    $sql2 = "update categories set pos= pos - 1 where pid = $pid and id != $node and pos > $pos";
+    exec_update($sql2);
 }

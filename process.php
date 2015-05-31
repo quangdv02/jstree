@@ -22,6 +22,7 @@ if (isset($_GET['operation'])) {
             break;
         case 'delete_node':
             $node = isset($_GET['id']) && $_GET['id'] !== '#' ? (int)$_GET['id'] : 0;
+            beforeDelNode($node);
             delete_node($node);
             $rslt = array('id' => $node);
             break;
@@ -32,8 +33,12 @@ if (isset($_GET['operation'])) {
             $sql1 = "select * from categories where id = $node";
             $data1 = fetchOne($sql1);
             $oldpos = $data1['pos'];
-            if($parn == $data1['pid']){
-               $sql2 = "update categories set pos= pos + 1 where pid = $parn and id != $node and (pos >= $pos and pos < $oldpos)";
+            if ($parn == $data1['pid']) {
+                if ($oldpos > $pos) {
+                    $sql2 = "update categories set pos= pos + 1 where pid = $parn and id != $node and (pos >= $pos and pos < $oldpos)";
+                } else {
+                    $sql2 = "update categories set pos= pos - 1 where pid = $parn and id != $node and (pos > $oldpos and pos <= $pos)";
+                }
             } else {
                 $sql2 = "update categories set pos= pos + 1 where pid = $parn and id != $node and pos >= $pos";
             }
